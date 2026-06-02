@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>REALVERSE</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{
+--bg:#080808;--bg2:#0e0e0e;--card:#141414;--card2:#1c1c1c;
+--accent:#ff0033;--accent-glow:rgba(255,0,51,.35);--accent2:#ff2244;
+--text:#eaeaea;--text2:#6a6a6a;--border:#222;--input-bg:#111;
+--shadow:rgba(0,0,0,.6);--overlay:rgba(0,0,0,.85);
+--red-btn:rgba(255,0,51,.12);--green:#00e676;
+}
+.light-mode{
+--bg:#f2f2f2;--bg2:#e8e8e8;--card:#ffffff;--card2:#f7f7f7;
+--accent:#cc0022;--accent-glow:rgba(204,0,34,.18);--accent2:#e6002e;
+--text:#111;--text2:#666;--border:#ccc;--input-bg:#fff;
+--shadow:rgba(0,0,0,.08);--overlay:rgba(255,255,255,.92);
+--red-btn:rgba(204,0,34,.08);--green:#00c853;
+}
+html,body{height:100%;font-family:'Rajdhani',sans-serif;background:#000;overflow:hidden;color:var(--text)}
+.app{width:100%;max-width:480px;height:100vh;height:100dvh;margin:0 auto;position:relative;overflow:hidden;background:var(--bg);transition:background .4s,color .4s}
+@media(min-width:520px){body{display:flex;align-items:center;justify-content:center}.app{height:93vh;max-height:940px;border-radius:22px;border:1px solid var(--border);box-shadow:0 0 80px var(--accent-glow)}}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;z-index:1}
+.screen.active{display:flex}
+/* ===== LOGIN ===== */
+#loginScreen{background:var(--bg);justify-content:center;align-items:center;padding:24px;position:relative;overflow:hidden}
+#loginScreen::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 49px,var(--border) 50px),repeating-linear-gradient(90deg,transparent,transparent 49px,var(--border) 50px);opacity:.08;animation:gridMove 8s linear infinite}
+@keyframes gridMove{to{transform:translate(50px,50px)}}
+.login-box{position:relative;z-index:2;width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.login-logo svg{width:72px;height:72px;filter:drop-shadow(0 0 18px var(--accent-glow))}
+.login-title{font-family:'Orbitron',sans-serif;font-size:32px;font-weight:900;letter-spacing:4px;color:var(--accent);text-shadow:0 0 30px var(--accent-glow)}
+.login-subtitle{font-size:13px;color:var(--text2);letter-spacing:6px;text-transform:uppercase;margin-top:-8px}
+.login-field{width:100%;position:relative}
+.login-field input{width:100%;padding:14px 16px 14px 44px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:600;outline:none;transition:border .3s,box-shadow .3s}
+.login-field input:focus{border-color:var(--accent);box-shadow:0 0 16px var(--accent-glow)}
+.login-field input::placeholder{color:var(--text2);font-weight:400}
+.login-field i{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:16px}
+.login-btn{width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:3px;cursor:pointer;transition:transform .15s,box-shadow .3s;box-shadow:0 4px 24px var(--accent-glow)}
+.login-btn:active{transform:scale(.97)}
+.login-error{color:var(--accent);font-size:13px;font-weight:600;min-height:18px;text-align:center;letter-spacing:1px;transition:opacity .3s;opacity:0}
+.login-error.show{opacity:1}
+.login-particles{position:absolute;inset:0;pointer-events:none;z-index:0}
+/* ===== INTRO ===== */
+#introScreen{background:#000;justify-content:center;align-items:center;position:relative;overflow:hidden}
+.intro-container{width:100%;height:100%;position:relative;overflow:hidden}
+.intro-video{width:100%;height:100%;object-fit:cover;display:block}
+/* ===== MAIN APP ===== */
+#mainApp{z-index:5;opacity:0;transform:scale(.96);transition:opacity .5s ease,transform .5s ease}
+#mainApp.main-enter{opacity:1;transform:scale(1)}
+.top-bar{height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;z-index:12;flex-shrink:0;transition:background .4s}
+.top-bar-left,.top-bar-right{width:40px;display:flex;align-items:center}
+.top-bar-right{justify-content:flex-end}
+.top-bar-center{position:absolute;left:50%;transform:translateX(-50%);font-family:'Orbitron',sans-serif;font-size:17px;font-weight:800;letter-spacing:3px;color:var(--accent);white-space:nowrap}
+.top-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:10px;cursor:pointer;color:var(--text2);font-size:17px;transition:color .2s,background .2s}
+.top-icon:hover{color:var(--text);background:var(--card)}
+.top-icon:active{transform:scale(.92)}
+.hamburger{display:flex;flex-direction:column;gap:4px;padding:8px}
+.hamburger span{display:block;width:18px;height:2px;background:var(--text2);border-radius:2px;transition:background .2s}
+.content-area{flex:1;overflow-y:auto;overflow-x:hidden;position:relative;scroll-behavior:smooth}
+.content-area::-webkit-scrollbar{width:3px}
+.content-area::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+.page{display:none;padding:20px 16px 24px;animation:pageIn .35s ease}
+.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+/* ===== BOTTOM NAV ===== */
+.bottom-nav{height:64px;display:flex;align-items:stretch;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0;position:relative;z-index:12;transition:background .4s}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--text2);transition:color .25s;position:relative}
+.nav-item i{font-size:18px;transition:transform .2s}
+.nav-item span{font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase;font-family:'Orbitron',sans-serif}
+.nav-item.active{color:var(--accent)}
+.nav-item.active i{transform:scale(1.15)}
+.nav-item::after{content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--accent);border-radius:0 0 2px 2px;transform:scaleX(0);transition:transform .25s}
+.nav-item.active::after{transform:scaleX(1)}
+/* ===== HOME PAGE ===== */
+.home-hero{width:100%;border-radius:14px;overflow:hidden;position:relative;margin-bottom:20px;aspect-ratio:16/9}
+.home-hero img{width:100%;height:100%;object-fit:cover;display:block}
+.home-hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,var(--bg) 100%);display:flex;align-items:flex-end;padding:16px}
+.home-hero-text{font-family:'Orbitron',sans-serif;font-size:22px;font-weight:800;letter-spacing:2px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.8)}
+.section-title{font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;letter-spacing:2px;color:var(--accent);margin-bottom:14px;text-transform:uppercase}
+.home-desc{font-size:15px;line-height:1.7;color:var(--text2);margin-bottom:24px;font-weight:500}
+.info-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:24px}
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;display:flex;align-items:center;gap:14px;transition:border-color .3s,transform .2s}
+.info-card:hover{border-color:var(--accent);transform:translateX(4px)}
+.info-card-icon{width:44px;height:44px;border-radius:10px;background:var(--red-btn);display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:18px;flex-shrink:0}
+.info-card-text h4{font-size:14px;font-weight:700;letter-spacing:1px;color:var(--text);margin-bottom:2px;font-family:'Orbitron',sans-serif}
+.info-card-text p{font-size:12px;color:var(--text2);line-height:1.5}
+.home-warning{background:var(--red-btn);border:1px solid rgba(255,0,51,.2);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;margin-bottom:16px}
+.home-warning i{color:var(--accent);font-size:20px;flex-shrink:0}
+.home-warning p{font-size:13px;color:var(--text2);line-height:1.5}
+/* ===== FITUR PAGE ===== */
+.fitur-image{width:100%;aspect-ratio:16/8;border-radius:14px;overflow:hidden;margin-bottom:16px;position:relative}
+.fitur-image img{width:100%;height:100%;object-fit:cover;display:block}
+.fitur-image::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,var(--bg) 100%)}
+.fitur-title{text-align:center;font-family:'Orbitron',sans-serif;font-size:28px;font-weight:900;letter-spacing:4px;color:var(--accent);text-shadow:0 0 30px var(--accent-glow);margin-bottom:4px}
+.fitur-label{font-size:13px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;margin-top:18px;font-family:'Orbitron',sans-serif}
+.phone-row{display:flex;gap:10px;margin-bottom:4px}
+.country-select{position:relative;flex-shrink:0;width:110px}
+.country-select select{width:100%;padding:13px 10px 13px 36px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border .3s}
+.country-select::after{content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:12px;pointer-events:none}
+.country-select select:focus{border-color:var(--accent)}
+.phone-input-wrap{flex:1;position:relative}
+.phone-input-wrap .wa-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(37,211,102,.35);font-size:18px;z-index:2;pointer-events:none}
+.phone-input-wrap input{width:100%;padding:13px 14px 13px 40px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;outline:none;letter-spacing:1px;transition:border .3s,box-shadow .3s}
+.phone-input-wrap input:focus{border-color:var(--accent);box-shadow:0 0 12px var(--accent-glow)}
+.phone-input-wrap input::placeholder{color:var(--text2);font-weight:400;letter-spacing:0}
+.phone-error{font-size:12px;color:var(--accent);min-height:16px;margin-top:4px;font-weight:600}
+.bug-select-wrap{position:relative;margin-bottom:4px}
+.bug-select-wrap select{width:100%;padding:13px 14px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:600;outline:none;appearance:none;-webkit-appearance:none;cursor:pointer;transition:border .3s}
+.bug-select-wrap::after{content:'\f107';font-family:'Font Awesome 6 Free';font-weight:900;position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:12px;pointer-events:none}
+.bug-select-wrap select:focus{border-color:var(--accent)}
+.bug-info{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-top:8px;margin-bottom:12px;min-height:44px}
+.bug-info p{font-size:13px;color:var(--text2);line-height:1.5}
+.bug-info strong{color:var(--accent)}
+.send-btn{width:100%;padding:15px;border:none;border-radius:12px;background:var(--accent);color:#fff;font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:3px;cursor:pointer;transition:transform .15s,box-shadow .3s,opacity .3s;box-shadow:0 4px 20px var(--accent-glow);margin-top:8px}
+.send-btn:active{transform:scale(.97)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+/* Progress UI */
+.progress-box{background:#0a0a0a;border:1px solid var(--border);border-radius:12px;padding:14px;margin-top:14px;display:none}
+.progress-box.visible{display:block;animation:pageIn .3s ease}
+.progress-box.light-mode-inner{background:#f8f8f8}
+.terminal-line{font-family:'Courier New',monospace;font-size:12px;line-height:1.8;color:var(--green);white-space:pre-wrap;word-break:break-all}
+.terminal-line .err{color:var(--accent)}
+.progress-bar-wrap{height:6px;background:var(--card2);border-radius:3px;margin-top:10px;overflow:hidden}
+.progress-bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:3px;transition:width .4s ease}
+.progress-status{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--text2);font-weight:600;letter-spacing:1px}
+/* ===== AKUN PAGE ===== */
+.profile-section{display:flex;flex-direction:column;align-items:center;gap:12px;margin-bottom:24px;padding:24px 0}
+.profile-pic{width:90px;height:90px;border-radius:50%;overflow:hidden;border:3px solid var(--accent);box-shadow:0 0 24px var(--accent-glow)}
+.profile-pic img{width:100%;height:100%;object-fit:cover;display:block}
+.profile-name{font-family:'Orbitron',sans-serif;font-size:20px;font-weight:800;letter-spacing:3px;color:var(--text)}
+.profile-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 14px;background:rgba(0,230,118,.1);border:1px solid rgba(0,230,118,.25);border-radius:20px;font-size:12px;color:var(--green);font-weight:700;letter-spacing:1px}
+.profile-badge i{font-size:10px}
+.akun-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;transition:border-color .3s}
+.akun-card:hover{border-color:var(--accent)}
+.akun-card-header{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.akun-card-header i{color:var(--accent);font-size:16px}
+.akun-card-header h4{font-family:'Orbitron',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text)}
+.akun-card-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)}
+.akun-card-row:last-child{border-bottom:none}
+.akun-card-row span{font-size:13px;color:var(--text2);font-weight:500}
+.akun-card-row strong{font-size:13px;color:var(--text);font-weight:700}
+.version-box{text-align:center;padding:12px;color:var(--text2);font-size:13px;font-weight:600;letter-spacing:1px}
+.version-box span{color:var(--accent);font-weight:800}
+.logout-btn{width:100%;padding:14px;border:1.5px solid rgba(255,0,51,.3);border-radius:12px;background:var(--red-btn);color:var(--accent);font-family:'Orbitron',sans-serif;font-size:13px;font-weight:700;letter-spacing:2px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .2s,transform .15s;margin-top:20px}
+.logout-btn:active{transform:scale(.97)}
+.logout-btn i{font-size:16px}
+/* ===== OVERLAYS ===== */
+.overlay{position:absolute;inset:0;z-index:100;display:none;flex-direction:column;transition:opacity .3s}
+.overlay.active{display:flex}
+.overlay-bg{position:absolute;inset:0;background:var(--overlay);backdrop-filter:blur(6px);z-index:0}
+.overlay-content{position:relative;z-index:1;background:var(--bg2);border-radius:0;max-height:100%;overflow-y:auto}
+/* Slideout (dari kanan) */
+.slideout-overlay .overlay-content{position:absolute;top:0;right:0;width:82%;max-width:340px;height:100%;padding:0;transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-left:1px solid var(--border)}
+.slideout-overlay.active .overlay-content{transform:translateX(0)}
+.slideout-header{display:flex;align-items:center;justify-content:space-between;padding:18px 16px;border-bottom:1px solid var(--border)}
+.slideout-header h3{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--accent)}
+.close-btn-red{width:32px;height:32px;border-radius:8px;background:rgba(255,0,51,.15);border:1px solid rgba(255,0,51,.3);color:var(--accent);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:background .2s,transform .15s}
+.close-btn-red:hover{background:rgba(255,0,51,.25)}
+.close-btn-red:active{transform:scale(.9)}
+.slideout-menu{padding:8px 0}
+.slideout-item{display:flex;align-items:center;gap:14px;padding:14px 20px;cursor:pointer;transition:background .2s,color .2s;color:var(--text)}
+.slideout-item:hover{background:var(--card)}
+.slideout-item:active{background:var(--card2)}
+.slideout-item i{width:22px;text-align:center;color:var(--accent);font-size:16px}
+.slideout-item span{font-size:14px;font-weight:600;letter-spacing:.5px}
+.slideout-divider{height:1px;background:var(--border);margin:6px 16px}
+.slideout-footer{padding:16px 20px;border-top:1px solid var(--border);margin-top:auto}
+.slideout-footer p{font-size:11px;color:var(--text2);text-align:center;letter-spacing:1px}
+/* Settings overlay */
+.settings-overlay .overlay-content{position:absolute;bottom:0;left:0;right:0;max-height:80%;border-radius:20px 20px 0 0;padding:0;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);border-top:1px solid var(--border)}
+.settings-overlay.active .overlay-content{transform:translateY(0)}
+.settings-header{display:flex;align-items:center;justify-content:space-between;padding:18px 16px;border-bottom:1px solid var(--border)}
+.settings-header h3{font-family:'Orbitron',sans-serif;font-size:14px;font-weight:700;letter-spacing:2px;color:var(--accent)}
+.settings-list{padding:8px 0}
+.settings-item{display:flex;align-items:center;justify-content:space-between;padding:14px 20px}
+.settings-item-left{display:flex;align-items:center;gap:14px}
+.settings-item-left i{width:22px;text-align:center;color:var(--accent);font-size:16px}
+.settings-item-left span{font-size:14px;font-weight:600;color:var(--text)}
+/* Toggle switch */
+.toggle{width:46px;height:26px;border-radius:13px;background:var(--card2);border:1.5px solid var(--border);position:relative;cursor:pointer;transition:background .3s,border-color .3s;flex-shrink:0}
+.toggle.on{background:var(--accent);border-color:var(--accent)}
+.toggle-knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.toggle.on .toggle-knob{transform:translateX(20px)}
+/* Mode selector */
+.mode-selector{display:flex;gap:6px;background:var(--card);border-radius:10px;padding:4px;border:1px solid var(--border)}
+.mode-btn{padding:8px 16px;border-radius:8px;border:none;background:transparent;color:var(--text2);font-family:'Rajdhani',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:1px;transition:all .25s}
+.mode-btn.active{background:var(--accent);color:#fff;box-shadow:0 2px 10px var(--accent-glow)}
+/* ===== TOAST ===== */
+.toast{position:absolute;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 20px;z-index:300;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;box-shadow:0 8px 30px var(--shadow);display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:13px;font-weight:600}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto}
+.toast i{color:var(--accent)}
+/* ===== ANIMATIONS ===== */
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes pulse{0%,100%{opacity:.7}50%{opacity:1}}
+.float-anim{animation:float 3s ease-in-out infinite}
+.pulse-anim{animation:pulse 2s ease-in-out infinite}
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+<!-- ========== LOGIN SCREEN ========== -->
+<div class="screen active" id="loginScreen">
+    <canvas class="login-particles" id="loginCanvas"></canvas>
+    <div class="login-box">
+        <div class="login-logo">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="50,4 93,27 93,73 50,96 7,73 7,27" stroke="#ff0033" stroke-width="2.5" fill="none" opacity=".8"/>
+                <polygon points="50,14 82,32 82,68 50,86 18,68 18,32" stroke="#ff0033" stroke-width="1" fill="none" opacity=".3"/>
+                <path d="M38 38 L50 22 L62 38 L56 38 L56 58 L44 58 L44 38Z" fill="#ff0033" opacity=".9"/>
+                <path d="M34 62 L42 52 L58 52 L66 62 L58 72 L42 72Z" fill="#ff0033" opacity=".6"/>
+                <circle cx="46" cy="64" r="2.5" fill="#080808"/>
+                <circle cx="54" cy="64" r="2.5" fill="#080808"/>
+                <line x1="50" y1="68" x2="50" y2="70" stroke="#080808" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+        </div>
+        <div class="login-title">𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘</div>
+        <div class="login-subtitle">Authorized Access</div>
+        <div class="login-field">
+            <i class="fas fa-user"></i>
+            <input type="text" id="loginUser" placeholder="Username" autocomplete="off" spellcheck="false">
+        </div>
+        <div class="login-field">
+            <i class="fas fa-lock"></i>
+            <input type="password" id="loginPass" placeholder="Password" autocomplete="off">
+        </div>
+        <button class="login-btn" id="loginBtn">MASUK</button>
+        <div class="login-error" id="loginError">Username atau password salah!</div>
+    </div>
+</div>
+
+<!-- ========== INTRO SCREEN ========== -->
+<div class="screen" id="introScreen">
+    <div class="intro-container">
+        <video class="intro-video" id="introVideo" playsinline preload="auto">
+            <source src="https://d.rapidcdn.app/v2?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJodHRwczovL3YxOS50aWt0b2tjZG4uY29tLzM2MzI3YmIwYWIwYTVlZDA5MTRhMDQ2NmJiZmZjOTUyLzZhMWY5ZDc2L3ZpZGVvL3Rvcy9hbGlzZy90b3MtYWxpc2ctcHZlLTAwMzcvb2tBMkJDbW9VRTNRRFZGRXgwd2ZCRjZ6WERsQ0VZSXZ5czhvZmcvP2E9MTE4MCZidGk9YkdSdVpIeHZNWEl4Y201M1ptMWNZRjllYldGemFIRm1PZyUzRCUzRCYmYnQ9MTU3OCZmdD1raWgzV1YweHdrNVJmakNFZGJPeDJrRUdDZ3Bpc3NIMVFqS0pMZnc4fkcwUDMtSSZtaW1lX3R5cGU9dmlkZW9fbXA0JnJjPU9EZGxObVJtTzJsb2FHazRNencwTzBCcE0ydzJPbkU1Y25keU5qTXpPRGd6TkVBdk5HRXVNRjh2Tmk4eFl5OHpZUzh3WVNOdWJYRmxNbVJ6YkROaExTMWtMekZ6Y3clM0QlM0QmdnZwbD0xJmw9MjAyNjA2MDIxMTIwMDMxNEM5MEE5NDEzOTU4ODlENTU1NSZidGFnPWUwMDA3ODAwMCIsImZpbGVuYW1lIjoic25hcHRpa183NTUxODQ2ODA1NTUwNTAxMTQxX3YzLm1wNCIsImhlYWRlcnMiOnsidXNlci1hZ2VudCI6IlRlbGVncmFtQm90IChsaWtlIFR3aXR0ZXJCb3QpIn0sImlhdCI6MTc4MDM3MDQwM30.hY5O_LTW9hJGZqILSXUqTCopLc9Drka9nq4azihWOvg&dl=1" type="video/mp4">
+        </video>
+    </div>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div class="screen" id="mainApp">
+    <!-- Top Bar -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <div class="top-icon" id="settingsBtn" title="Pengaturan"><i class="fas fa-gear"></i></div>
+        </div>
+        <div class="top-bar-center">𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘</div>
+        <div class="top-bar-right">
+            <div class="top-icon" id="menuBtn" title="Menu">
+                <div class="hamburger"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+        <!-- HOME -->
+        <div class="page active" id="homePage">
+            <div class="home-hero">
+                <img src="https://i.pinimg.com/736x/29/26/49/292649dcc68ee9527e0d912edd2f7929.jpg" alt="hero">
+                <div class="home-hero-overlay">
+                    <div class="home-hero-text">𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘</div>
+                </div>
+            </div>
+            <div class="section-title">Tentang Aplikasi</div>
+            <p class="home-desc">𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘 adalah sistem crash delivery canggih yang mampu mengirimkan berbagai jenis bug dan crash ke target WhatsApp. Dengan arsitektur multi-layer dan bypass otomatis, setiap serangan dioptimasi untuk hasil maksimal.</p>
+            <div class="home-warning">
+                <i class="fas fa-triangle-exclamation"></i>
+                <p>Alat ini hanya untuk tujuan edukasi dan pengujian keamanan. Gunakan dengan bijak dan bertanggung jawab.</p>
+            </div>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-bolt"></i></div>
+                    <div class="info-card-text">
+                        <h4>Crash Delivery</h4>
+                        <p>Kirim bug crash ke WhatsApp target secara langsung dan cepat.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-shield-halved"></i></div>
+                    <div class="info-card-text">
+                        <h4>Bypass Protection</h4>
+                        <p>Sistem bypass otomatis menghindari deteksi dan filter keamanan.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-virus"></i></div>
+                    <div class="info-card-text">
+                        <h4>Multi-Bug Arsenal</h4>
+                        <p>Pilihan bug lengkap dari crash loop hingga kernel panic.</p>
+                    </div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-clock"></i></div>
+                    <div class="info-card-text">
+                        <h4>Real-Time Monitor</h4>
+                        <p>Pantau status pengiriman dan eksekusi secara real-time.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="section-title">Cara Kerja</div>
+            <div class="info-cards">
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-1"></i></div>
+                    <div class="info-card-text"><h4>Masukkan Nomor</h4><p>Input nomor WhatsApp target dengan kode negara yang benar.</p></div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-2"></i></div>
+                    <div class="info-card-text"><h4>Pilih Bug</h4><p>Pilih tipe bug yang ingin dikirimkan ke target.</p></div>
+                </div>
+                <div class="info-card">
+                    <div class="info-card-icon"><i class="fas fa-3"></i></div>
+                    <div class="info-card-text"><h4>Kirim</h4><p>Tekan kirim dan sistem akan mengeksekusi secara otomatis.</p></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FITUR -->
+        <div class="page" id="fiturPage">
+            <div class="fitur-image">
+                <img src="https://i.pinimg.com/736x/4f/0f/8c/4f0f8ca328d75022b7b3ccba79a2603a.jpg" alt="bug">
+            </div>
+            <div class="fitur-title">𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘</div>
+
+            <div class="fitur-label">Nomor WhatsApp</div>
+            <div class="phone-row">
+                <div class="country-select">
+                    <select id="countryCode">
+                        <option value="62" data-flag="🇮🇩">🇮🇩 +62</option>
+                        <option value="1" data-flag="🇺🇸">🇺🇸 +1</option>
+                        <option value="44" data-flag="🇬🇧">🇬🇧 +44</option>
+                        <option value="81" data-flag="🇯🇵">🇯🇵 +81</option>
+                        <option value="82" data-flag="🇰🇷">🇰🇷 +82</option>
+                        <option value="91" data-flag="🇮🇳">🇮🇳 +91</option>
+                        <option value="55" data-flag="🇧🇷">🇧🇷 +55</option>
+                        <option value="49" data-flag="🇩🇪">🇩🇪 +49</option>
+                        <option value="33" data-flag="🇫🇷">🇫🇷 +33</option>
+                        <option value="65" data-flag="🇸🇬">🇸🇬 +65</option>
+                        <option value="60" data-flag="🇲🇾">🇲🇾 +60</option>
+                        <option value="66" data-flag="🇹🇭">🇹🇭 +66</option>
+                        <option value="63" data-flag="🇵🇭">🇵🇭 +63</option>
+                        <option value="61" data-flag="🇦🇺">🇦🇺 +61</option>
+                        <option value="86" data-flag="🇨🇳">🇨🇳 +86</option>
+                        <option value="7" data-flag="🇷🇺">🇷🇺 +7</option>
+                        <option value="34" data-flag="🇪🇸">🇪🇸 +34</option>
+                        <option value="39" data-flag="🇮🇹">🇮🇹 +39</option>
+                        <option value="90" data-flag="🇹🇷">🇹🇷 +90</option>
+                        <option value="27" data-flag="🇿🇦">🇿🇦 +27</option>
+                        <option value="20" data-flag="🇪🇬">🇪🇬 +20</option>
+                        <option value="966" data-flag="🇸🇦">🇸🇦 +966</option>
+                        <option value="971" data-flag="🇦🇪">🇦🇪 +971</option>
+                        <option value="977" data-flag="🇳🇵">🇳🇵 +977</option>
+                        <option value="880" data-flag="🇧🇩">🇧🇩 +880</option>
+                        <option value="95" data-flag="🇲🇲">🇲🇲 +95</option>
+                        <option value="84" data-flag="🇻🇳">🇻🇳 +84</option>
+                        <option value="855" data-flag="🇰🇭">🇰🇭 +855</option>
+                        <option value="64" data-flag="🇳🇿">🇳🇿 +64</option>
+                        <option value="351" data-flag="🇵🇹">🇵🇹 +351</option>
+                    </select>
+                </div>
+                <div class="phone-input-wrap">
+                    <i class="fab fa-whatsapp wa-icon"></i>
+                    <input type="tel" id="phoneInput" placeholder="8xx xxxx xxxx" maxlength="15" autocomplete="off">
+                </div>
+            </div>
+            <div class="phone-error" id="phoneError"></div>
+
+            <div class="fitur-label">Pilih Bug</div>
+            <div class="bug-select-wrap">
+                <select id="bugSelect">
+                    <option value="">-- Pilih Tipe Bug --</option>
+                    <option value="crash_loop">Crash Loop</option>
+                    <option value="memory_overflow">Memory Overflow</option>
+                    <option value="null_pointer">Null Pointer Exception</option>
+                    <option value="stack_overflow">Stack Overflow</option>
+                    <option value="infinite_reboot">Infinite Reboot</option>
+                    <option value="ui_freeze">UI Freeze</option>
+                    <option value="kernel_panic">Kernel Panic</option>
+                    <option value="buffer_overflow">Buffer Overflow</option>
+                    <option value="system_hang">System Hang</option>
+                    <option value="boot_loop">Boot Loop</option>
+                    <option value="daemon_crash">Daemon Crash</option>
+                    <option value="race_condition">Race Condition</option>
+                    <option value="deadlock">Deadlock Attack</option>
+                    <option value="heap_spray">Heap Spray</option>
+                    <option value="xml_bomb">XML Bomb</option>
+                </select>
+            </div>
+            <div class="bug-info" id="bugInfo"><p style="color:var(--text2);font-size:13px;">Pilih bug untuk melihat detail.</p></div>
+
+            <button class="send-btn" id="sendBtn">KIRIM</button>
+
+            <div class="progress-box" id="progressBox">
+                <div id="terminalOutput"></div>
+                <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+                <div class="progress-status">
+                    <span id="progressLabel">Memulai...</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AKUN -->
+        <div class="page" id="akunPage">
+            <div class="profile-section">
+                <div class="profile-pic">
+                    <img src="https://i.pinimg.com/1200x/71/b2/28/71b228b9bd2b6eb5aa62f7209875deeb.jpg" alt="avatar">
+                </div>
+                <div class="profile-name">EXEVERREN</div>
+                <div class="profile-badge"><i class="fas fa-circle-check"></i> Verified Developer</div>
+            </div>
+
+            <div class="akun-card">
+                <div class="akun-card-header"><i class="fas fa-id-card"></i><h4>Data Akun</h4></div>
+                <div class="akun-card-row"><span>Nama</span><strong>EXEVERREN</strong></div>
+                <div class="akun-card-row"><span>ID</span><strong>#0553</strong></div>
+                <div class="akun-card-row"><span>Status</span><strong style="color:var(--green)">Aktif</strong></div>
+                <div class="akun-card-row"><span>Level</span><strong>Elite</strong></div>
+                <div class="akun-card-row"><span>Bergabung</span><strong>2024</strong></div>
+            </div>
+
+            <div class="akun-card">
+                <div class="akun-card-header"><i class="fas fa-chart-line"></i><h4>Statistik</h4></div>
+                <div class="akun-card-row"><span>Total Serangan</span><strong>1,247</strong></div>
+                <div class="akun-card-row"><span>Berhasil</span><strong style="color:var(--green)">98.7%</strong></div>
+                <div class="akun-card-row"><span>Gagal</span><strong style="color:var(--accent)">1.3%</strong></div>
+                <div class="akun-card-row"><span>Target Aktif</span><strong>3</strong></div>
+            </div>
+
+            <div class="akun-card">
+                <div class="akun-card-header"><i class="fas fa-trophy"></i><h4>Pencapaian</h4></div>
+                <div class="akun-card-row"><span>Crash Master</span><strong><i class="fas fa-medal" style="color:gold"></i></strong></div>
+                <div class="akun-card-row"><span>Bypass Expert</span><strong><i class="fas fa-medal" style="color:silver"></i></strong></div>
+                <div class="akun-card-row"><span>Speed Demon</span><strong><i class="fas fa-medal" style="color:#cd7f32"></i></strong></div>
+            </div>
+
+            <div class="version-box">Versi Aplikasi <span>v2.1.0</span></div>
+
+            <button class="logout-btn" id="logoutBtn">
+                <i class="fas fa-right-from-bracket"></i>
+                LOG OUT
+            </button>
+        </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-page="homePage">
+            <i class="fas fa-house"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item" data-page="fiturPage">
+            <i class="fas fa-crosshairs"></i>
+            <span>Fitur</span>
+        </div>
+        <div class="nav-item" data-page="akunPage">
+            <i class="fas fa-user"></i>
+            <span>Akun</span>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SETTINGS OVERLAY ========== -->
+<div class="overlay settings-overlay" id="settingsOverlay">
+    <div class="overlay-bg" id="settingsBg"></div>
+    <div class="overlay-content">
+        <div class="settings-header">
+            <h3>Pengaturan</h3>
+            <div class="close-btn-red" id="settingsClose"><i class="fas fa-xmark"></i></div>
+        </div>
+        <div class="settings-list">
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-palette"></i><span>Mode Tampilan</span></div>
+                <div class="mode-selector">
+                    <button class="mode-btn active" data-mode="dark">Dark</button>
+                    <button class="mode-btn" data-mode="light">Light</button>
+                </div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-bell"></i><span>Notifikasi</span></div>
+                <div class="toggle on" id="toggleNotif"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-volume-high"></i><span>Efek Suara</span></div>
+                <div class="toggle on" id="toggleSound"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-rotate"></i><span>Auto-Retry</span></div>
+                <div class="toggle" id="toggleRetry"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-eye-slash"></i><span>Stealth Mode</span></div>
+                <div class="toggle" id="toggleStealth"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-database"></i><span>Cache</span></div>
+                <div class="toggle on" id="toggleCache"><div class="toggle-knob"></div></div>
+            </div>
+            <div class="settings-item">
+                <div class="settings-item-left"><i class="fas fa-language"></i><span>Bahasa</span></div>
+                <span style="font-size:13px;color:var(--text2);font-weight:600">Indonesia</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== SLIDEOUT MENU ========== -->
+<div class="overlay slideout-overlay" id="slideoutOverlay">
+    <div class="overlay-bg" id="slideoutBg"></div>
+    <div class="overlay-content">
+        <div class="slideout-header">
+            <h3>Menu</h3>
+            <div class="close-btn-red" id="slideoutClose"><i class="fas fa-xmark"></i></div>
+        </div>
+        <div class="slideout-menu">
+            <div class="slideout-item" data-action="dashboard"><i class="fas fa-gauge-high"></i><span>Dashboard</span></div>
+            <div class="slideout-item" data-action="history"><i class="fas fa-clock-rotate-left"></i><span>Riwayat Serangan</span></div>
+            <div class="slideout-item" data-action="targets"><i class="fas fa-bookmark"></i><span>Target Tersimpan</span></div>
+            <div class="slideout-divider"></div>
+            <div class="slideout-item" data-action="guide"><i class="fas fa-book-open"></i><span>Panduan Penggunaan</span></div>
+            <div class="slideout-item" data-action="faq"><i class="fas fa-circle-question"></i><span>FAQ & Bantuan</span></div>
+            <div class="slideout-divider"></div>
+            <div class="slideout-item" data-action="contact"><i class="fas fa-envelope"></i><span>Hubungi Developer</span></div>
+            <div class="slideout-item" data-action="share"><i class="fas fa-share-nodes"></i><span>Bagikan Aplikasi</span></div>
+            <div class="slideout-item" data-action="donate"><i class="fas fa-heart"></i><span>Donasi</span></div>
+            <div class="slideout-item" data-action="credits"><i class="fas fa-star"></i><span>Kredit</span></div>
+        </div>
+        <div class="slideout-footer">
+            <p>𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘 v2.1.0</p>
+        </div>
+    </div>
+</div>
+
+<!-- ========== TOAST ========== -->
+<div class="toast" id="toast"><i class="fas fa-circle-info"></i><span id="toastMsg"></span></div>
+
+</div><!-- end .app -->
+
+<script>
+/* ===================================================
+   REALVERSE - UI Only (Fake)
+   =================================================== */
+
+// --- Elemen DOM ---
+const app = document.getElementById('app');
+const loginScreen = document.getElementById('loginScreen');
+const introScreen = document.getElementById('introScreen');
+const mainApp = document.getElementById('mainApp');
+const loginUser = document.getElementById('loginUser');
+const loginPass = document.getElementById('loginPass');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+const introVideo = document.getElementById('introVideo');
+const settingsBtn = document.getElementById('settingsBtn');
+const settingsOverlay = document.getElementById('settingsOverlay');
+const settingsClose = document.getElementById('settingsClose');
+const settingsBg = document.getElementById('settingsBg');
+const menuBtn = document.getElementById('menuBtn');
+const slideoutOverlay = document.getElementById('slideoutOverlay');
+const slideoutClose = document.getElementById('slideoutClose');
+const slideoutBg = document.getElementById('slideoutBg');
+const countryCode = document.getElementById('countryCode');
+const phoneInput = document.getElementById('phoneInput');
+const phoneError = document.getElementById('phoneError');
+const bugSelect = document.getElementById('bugSelect');
+const bugInfo = document.getElementById('bugInfo');
+const sendBtn = document.getElementById('sendBtn');
+const progressBox = document.getElementById('progressBox');
+const terminalOutput = document.getElementById('terminalOutput');
+const progressFill = document.getElementById('progressFill');
+const progressLabel = document.getElementById('progressLabel');
+const progressPercent = document.getElementById('progressPercent');
+const logoutBtn = document.getElementById('logoutBtn');
+const toast = document.getElementById('toast');
+const toastMsg = document.getElementById('toastMsg');
+
+// --- Data Login Rahasia ---
+const SECRET_USER = 'EXEVERREN_0553';
+const SECRET_PASS = '52wA08?K2aW6h';
+
+// --- Data Bug ---
+const bugData = {
+    crash_loop: { name:'Crash Loop', desc:'Menyebabkan aplikasi target crash secara berulang tanpa henti. Target tidak bisa membuka aplikasi.', severity:'Kritis' },
+    memory_overflow: { name:'Memory Overflow', desc:'Membanjiri memori target hingga aplikasi kehabisan RAM dan force close.', severity:'Tinggi' },
+    null_pointer: { name:'Null Pointer Exception', desc:'Mengirim payload null yang menyebabkan exception fatal pada sistem target.', severity:'Tinggi' },
+    stack_overflow: { name:'Stack Overflow', desc:'Rekursi tak terbatas yang menghabiskan stack call dan crash aplikasi.', severity:'Kritis' },
+    infinite_reboot: { name:'Infinite Reboot', desc:'Target mengalami restart loop dan tidak bisa masuk ke aplikasi.', severity:'Ekstrem' },
+    ui_freeze: { name:'UI Freeze', desc:'Membekukan antarmuka target sepenuhnya, tidak bisa diinteraksi.', severity:'Sedang' },
+    kernel_panic: { name:'Kernel Panic', desc:'Serangan level kernel yang menyebabkan sistem operasi crash total.', severity:'Ekstrem' },
+    buffer_overflow: { name:'Buffer Overflow', desc:'Mengisi buffer melampaui kapasitas hingga overwrite memori.', severity:'Tinggi' },
+    system_hang: { name:'System Hang', desc:'Sistem target menggantung total, hanya bisa diatasi dengan hard reset.', severity:'Tinggi' },
+    boot_loop: { name:'Boot Loop', desc:'Perangkat target terjebak dalam siklus booting tanpa akhir.', severity:'Ekstrem' },
+    daemon_crash: { name:'Daemon Crash', desc:'Crash seluruh background service dan daemon pada sistem target.', severity:'Tinggi' },
+    race_condition: { name:'Race Condition', desc:'Memicu race condition yang menyebabkan data corruption dan crash.', severity:'Sedang' },
+    deadlock: { name:'Deadlock Attack', desc:'Mengunci seluruh thread sistem target dalam deadlock permanen.', severity:'Tinggi' },
+    heap_spray: { name:'Heap Spray', desc:'Teknik heap spraying untuk eksploitasi memori dan crash aplikasi.', severity:'Kritis' },
+    xml_bomb: { name:'XML Bomb', desc:'Payload XML yang meluas secara eksponensial menghabiskan memori.', severity:'Kritis' }
+};
+
+// --- Toast ---
+let toastTimer = null;
+function showToast(msg) {
+    toastMsg.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// --- Login ---
+loginBtn.addEventListener('click', handleLogin);
+loginPass.addEventListener('keydown', e => { if(e.key === 'Enter') handleLogin(); });
+loginUser.addEventListener('keydown', e => { if(e.key === 'Enter') loginPass.focus(); });
+
+function handleLogin() {
+    const u = loginUser.value.trim();
+    const p = loginPass.value;
+    if(u === SECRET_USER && p === SECRET_PASS) {
+        loginError.classList.remove('show');
+        loginScreen.classList.remove('active');
+        introScreen.classList.add('active');
+        startIntro();
+    } else {
+        loginError.classList.add('show');
+        loginUser.value = '';
+        loginPass.value = '';
+        loginUser.focus();
+    }
+}
+
+// --- Intro Video ---
+let introTransitioned = false;
+
+function startIntro() {
+    introTransitioned = false;
+    // Hanya play video SETELAH login berhasil, dengan suara
+    introVideo.muted = false;
+    introVideo.currentTime = 0;
+    introVideo.play().catch(() => {
+        // Browser blok autoplay dengan suara, fallback muted
+        introVideo.muted = true;
+        introVideo.play().catch(() => {});
+    });
+    // Saat video selesai, langsung fade ke menu utama
+    introVideo.onended = function() {
+        goToMain();
+    };
+    // Jika video gagal load, skip setelah 3 detik
+    introVideo.onerror = function() {
+        setTimeout(goToMain, 3000);
+    };
+}
+
+function goToMain() {
+    if(introTransitioned) return;
+    introTransitioned = true;
+    // Pause video
+    introVideo.pause();
+    introVideo.onended = null;
+    introVideo.onerror = null;
+    // Fade out intro screen
+    introScreen.style.transition = 'opacity .6s ease';
+    introScreen.style.opacity = '0';
+    setTimeout(() => {
+        introScreen.classList.remove('active');
+        introScreen.style.transition = '';
+        introScreen.style.opacity = '';
+        introVideo.currentTime = 0;
+        // Tampilkan main app dengan animasi
+        mainApp.classList.add('active');
+        mainApp.classList.remove('main-enter');
+        void mainApp.offsetWidth;
+        mainApp.classList.add('main-enter');
+    }, 600);
+}
+
+// --- Login Canvas Particles ---
+const loginCanvas = document.getElementById('loginCanvas');
+const lctx = loginCanvas.getContext('2d');
+let loginParticles = [];
+let loginAnimId = null;
+
+function initLoginCanvas() {
+    const rect = loginCanvas.getBoundingClientRect();
+    loginCanvas.width = rect.width * devicePixelRatio;
+    loginCanvas.height = rect.height * devicePixelRatio;
+    lctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+    loginParticles = [];
+    for(let i = 0; i < 50; i++) {
+        loginParticles.push({
+            x: Math.random() * rect.width,
+            y: Math.random() * rect.height,
+            vx: (Math.random() - 0.5) * 0.4,
+            vy: -Math.random() * 0.6 - 0.2,
+            r: Math.random() * 1.5 + 0.3,
+            a: Math.random() * 0.4 + 0.1
+        });
+    }
+    loginAnimLoop();
+}
+
+function loginAnimLoop() {
+    const w = loginCanvas.width / devicePixelRatio;
+    const h = loginCanvas.height / devicePixelRatio;
+    lctx.clearRect(0, 0, w, h);
+    loginParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if(p.y < -5) { p.y = h + 5; p.x = Math.random() * w; }
+        if(p.x < -5) p.x = w + 5;
+        if(p.x > w + 5) p.x = -5;
+        lctx.beginPath();
+        lctx.arc(p.x, p.y, Math.max(0.3, p.r), 0, Math.PI * 2);
+        lctx.fillStyle = `rgba(255,0,51,${p.a})`;
+        lctx.fill();
+    });
+    loginAnimId = requestAnimationFrame(loginAnimLoop);
+}
+
+initLoginCanvas();
+
+// --- Navigasi Tab ---
+const navItems = document.querySelectorAll('.nav-item');
+const pages = document.querySelectorAll('.page');
+
+navItems.forEach(item => {
+    item.addEventListener('click', () => {
+        const target = item.dataset.page;
+        navItems.forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(target).classList.add('active');
+    });
+});
+
+// --- Settings Panel ---
+settingsBtn.addEventListener('click', () => settingsOverlay.classList.add('active'));
+settingsClose.addEventListener('click', () => settingsOverlay.classList.remove('active'));
+settingsBg.addEventListener('click', () => settingsOverlay.classList.remove('active'));
+
+// Mode selector
+const modeBtns = document.querySelectorAll('.mode-btn');
+modeBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+        modeBtns.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if(btn.dataset.mode === 'light') {
+            app.classList.add('light-mode');
+        } else {
+            app.classList.remove('light-mode');
+        }
+    });
+});
+
+// Toggle switches
+document.querySelectorAll('.toggle').forEach(toggle => {
+    toggle.addEventListener('click', () => {
+        toggle.classList.toggle('on');
+    });
+});
+
+// --- Slideout Menu ---
+menuBtn.addEventListener('click', () => slideoutOverlay.classList.add('active'));
+slideoutClose.addEventListener('click', () => slideoutOverlay.classList.remove('active'));
+slideoutBg.addEventListener('click', () => slideoutOverlay.classList.remove('active'));
+
+// Slideout menu items
+document.querySelectorAll('.slideout-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const action = item.dataset.action;
+        const messages = {
+            dashboard: 'Membuka Dashboard...',
+            history: 'Memuat riwayat serangan...',
+            targets: 'Memuat target tersimpan...',
+            guide: 'Membuka panduan penggunaan...',
+            faq: 'Memuat FAQ & Bantuan...',
+            contact: 'Membuka formulir kontak...',
+            share: 'Link berbagi disalin!',
+            donate: 'Membuka halaman donasi...',
+            credits: '𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘 by EXEVERREN'
+        };
+        showToast(messages[action] || 'Fitur segera hadir');
+        slideoutOverlay.classList.remove('active');
+    });
+});
+
+// --- Fitur: Bug Info ---
+bugSelect.addEventListener('change', () => {
+    const val = bugSelect.value;
+    if(val && bugData[val]) {
+        const b = bugData[val];
+        const sevColor = b.severity === 'Ekstrem' ? '#ff0033' : b.severity === 'Kritis' ? '#ff6600' : b.severity === 'Tinggi' ? '#ffaa00' : '#00e676';
+        bugInfo.innerHTML = `<p><strong>${b.name}</strong><br>${b.desc}<br><span style="color:${sevColor};font-weight:700">Severity: ${b.severity}</span></p>`;
+    } else {
+        bugInfo.innerHTML = '<p style="color:var(--text2);font-size:13px;">Pilih bug untuk melihat detail.</p>';
+    }
+});
+
+// --- Fitur: Validasi & Kirim ---
+let isSending = false;
+
+sendBtn.addEventListener('click', handleSend);
+
+function handleSend() {
+    if(isSending) return;
+    const code = countryCode.value;
+    const phone = phoneInput.value.replace(/\s/g, '');
+    const bug = bugSelect.value;
+
+    // Validasi nomor
+    if(!phone) {
+        phoneError.textContent = 'Masukkan nomor WhatsApp!';
+        phoneInput.focus();
+        return;
+    }
+    if(!/^\d{6,15}$/.test(phone)) {
+        phoneError.textContent = 'Nomor tidak valid! Hanya angka, min 6 digit.';
+        phoneInput.focus();
+        return;
+    }
+    phoneError.textContent = '';
+
+    // Validasi bug
+    if(!bug) {
+        showToast('Pilih tipe bug terlebih dahulu!');
+        return;
+    }
+
+    // Mulai fake sending
+    isSending = true;
+    sendBtn.disabled = true;
+    progressBox.classList.add('visible');
+    progressFill.style.width = '0%';
+    terminalOutput.innerHTML = '';
+    progressPercent.textContent = '0%';
+    progressLabel.textContent = 'Memulai...';
+
+    const fullNumber = '+' + code + phone;
+    const bugName = bugData[bug].name;
+
+    const steps = [
+        { pct: 8, label: 'Menghubungkan...', line: `[INFO] Menghubungkan ke server 𝗥𝗘𝗔𝗟Ʋ𝗥𝗦𝗘...` },
+        { pct: 15, label: 'Terhubung', line: `[OK] Koneksi berhasil established` },
+        { pct: 22, label: 'Resolve target...', line: `[INFO] Resolving target: ${fullNumber}` },
+        { pct: 30, label: 'Target ditemukan', line: `[OK] Target terdeteksi dan online` },
+        { pct: 38, label: 'Bypass security...', line: `[INFO] Bypassing WhatsApp security layer...` },
+        { pct: 48, label: 'Bypass OK', line: `[OK] Security bypass berhasil` },
+        { pct: 55, label: 'Inject payload...', line: `[INFO] Injecting ${bugName} payload...` },
+        { pct: 65, label: 'Mengirim...', line: `[INFO] Mengirim ${bugName} ke target...` },
+        { pct: 75, label: 'Delivering...', line: `[OK] Payload terkirim ke target` },
+        { pct: 82, label: 'Eksekusi...', line: `[INFO] Menunggu eksekusi pada perangkat target...` },
+        { pct: 90, label: 'Bug aktif', line: `[OK] Bug aktif pada perangkat target!` },
+        { pct: 95, label: 'Finalisasi...', line: `[INFO] Cleaning traces...` },
+        { pct: 100, label: 'Selesai', line: `[OK] Serangan berhasil! Target telah di-${bugName}` }
+    ];
+
+    let stepIndex = 0;
+
+    function nextStep() {
+        if(stepIndex >= steps.length) {
+            isSending = false;
+            sendBtn.disabled = false;
+            return;
+        }
+        const step = steps[stepIndex];
+        const isError = step.line.includes('[INFO]') && Math.random() < 0.1;
+        const lineClass = step.line.startsWith('[OK]') ? '' : (isError ? ' err' : '');
+        terminalOutput.innerHTML += `<div class="terminal-line${lineClass}">${step.line}</div>`;
+        progressFill.style.width = step.pct + '%';
+        progressPercent.textContent = step.pct + '%';
+        progressLabel.textContent = step.label;
+        terminalOutput.scrollTop = terminalOutput.scrollHeight;
+        stepIndex++;
+        const delay = 400 + Math.random() * 800;
+        setTimeout(nextStep, delay);
+    }
+
+    setTimeout(nextStep, 600);
+}
+
+// --- Logout ---
+logoutBtn.addEventListener('click', () => {
+    // Reset state
+    mainApp.classList.remove('active');
+    mainApp.classList.remove('main-enter');
+    loginScreen.classList.add('active');
+    loginUser.value = '';
+    loginPass.value = '';
+    loginError.classList.remove('show');
+    phoneInput.value = '';
+    phoneError.textContent = '';
+    bugSelect.value = '';
+    bugInfo.innerHTML = '<p style="color:var(--text2);font-size:13px;">Pilih bug untuk melihat detail.</p>';
+    progressBox.classList.remove('visible');
+    isSending = false;
+    sendBtn.disabled = false;
+    // Reset nav ke home
+    navItems.forEach(n => n.classList.remove('active'));
+    navItems[0].classList.add('active');
+    pages.forEach(p => p.classList.remove('active'));
+    document.getElementById('homePage').classList.add('active');
+    // Reset mode ke dark
+    app.classList.remove('light-mode');
+    modeBtns.forEach(b => b.classList.remove('active'));
+    modeBtns[0].classList.add('active');
+    showToast('Berhasil logout');
+    // Restart login particles
+    if(!loginAnimId) initLoginCanvas();
+});
+
+// --- Resize handler ---
+window.addEventListener('resize', () => {
+    if(loginScreen.classList.contains('active')) {
+        initLoginCanvas();
+    }
+});
+
+// --- Hapus auto-focus pada mobile ---
+loginUser.blur();
+</script>
+</body>
+</html>
