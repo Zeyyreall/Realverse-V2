@@ -614,6 +614,13 @@ function showToast(msg) {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+// --- Cek localStorage: sudah login atau belum ---
+if(localStorage.getItem('rv_auth') === '1') {
+    loginScreen.classList.remove('active');
+    mainApp.classList.add('active');
+    mainApp.classList.add('main-enter');
+}
+
 // --- Login ---
 loginBtn.addEventListener('click', handleLogin);
 loginPass.addEventListener('keydown', e => { if(e.key === 'Enter') handleLogin(); });
@@ -624,6 +631,7 @@ function handleLogin() {
     const p = loginPass.value;
     if(u === SECRET_USER && p === SECRET_PASS) {
         loginError.classList.remove('show');
+        localStorage.setItem('rv_auth', '1');
         loginScreen.classList.remove('active');
         introScreen.classList.add('active');
         startIntro();
@@ -640,19 +648,15 @@ let introTransitioned = false;
 
 function startIntro() {
     introTransitioned = false;
-    // Hanya play video SETELAH login berhasil, dengan suara
     introVideo.muted = false;
     introVideo.currentTime = 0;
     introVideo.play().catch(() => {
-        // Browser blok autoplay dengan suara, fallback muted
         introVideo.muted = true;
         introVideo.play().catch(() => {});
     });
-    // Saat video selesai, langsung fade ke menu utama
     introVideo.onended = function() {
         goToMain();
     };
-    // Jika video gagal load, skip setelah 3 detik
     introVideo.onerror = function() {
         setTimeout(goToMain, 3000);
     };
@@ -661,11 +665,9 @@ function startIntro() {
 function goToMain() {
     if(introTransitioned) return;
     introTransitioned = true;
-    // Pause video
     introVideo.pause();
     introVideo.onended = null;
     introVideo.onerror = null;
-    // Fade out intro screen
     introScreen.style.transition = 'opacity .6s ease';
     introScreen.style.opacity = '0';
     setTimeout(() => {
@@ -673,7 +675,6 @@ function goToMain() {
         introScreen.style.transition = '';
         introScreen.style.opacity = '';
         introVideo.currentTime = 0;
-        // Tampilkan main app dengan animasi
         mainApp.classList.add('active');
         mainApp.classList.remove('main-enter');
         void mainApp.offsetWidth;
@@ -814,7 +815,6 @@ function handleSend() {
     const phone = phoneInput.value.replace(/\s/g, '');
     const bug = bugSelect.value;
 
-    // Validasi nomor
     if(!phone) {
         phoneError.textContent = 'Masukkan nomor WhatsApp!';
         phoneInput.focus();
@@ -827,13 +827,11 @@ function handleSend() {
     }
     phoneError.textContent = '';
 
-    // Validasi bug
     if(!bug) {
         showToast('Pilih tipe bug terlebih dahulu!');
         return;
     }
 
-    // Mulai fake sending
     isSending = true;
     sendBtn.disabled = true;
     progressBox.classList.add('visible');
@@ -887,6 +885,8 @@ function handleSend() {
 
 // --- Logout ---
 logoutBtn.addEventListener('click', () => {
+    // Hapus status login dari localStorage
+    localStorage.removeItem('rv_auth');
     // Reset state
     mainApp.classList.remove('active');
     mainApp.classList.remove('main-enter');
